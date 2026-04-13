@@ -642,7 +642,8 @@ function renderSettings(state) {
       <div class="field">
         <label>GitHub Personal Access Token</label>
         <input type="password" id="gist-token" value="${escHtml(gistToken)}"
-          placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+          placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+          autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
         <div class="hint">
           Create one at github.com → Settings → Developer settings → Personal access tokens → Fine-grained.
           Required scope: <strong>Gist (read/write)</strong>.
