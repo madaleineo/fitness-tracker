@@ -76,7 +76,11 @@ async function syncToGist(state) {
   const { gistToken, gistId } = state.settings;
   if (!gistToken) return { success: false, error: 'No token configured' };
 
-  const content = JSON.stringify(state, null, 2);
+  // Strip the token before writing to Gist — GitHub secret scanning will
+  // revoke any PAT it finds in Gist content, which makes the token appear
+  // to "expire after one use". The token lives only in localStorage.
+  const stateToSync = { ...state, settings: { ...state.settings, gistToken: '' } };
+  const content = JSON.stringify(stateToSync, null, 2);
 
   try {
     if (gistId) {
@@ -169,7 +173,8 @@ function mergeStates(local, remote) {
     }
   }
 
-  return { ...base, sessions };
+  // Always preserve the local token — remote state never stores it
+  return { ...base, sessions, settings: { ...base.settings, gistToken: local.settings.gistToken } };
 }
 
 /* ── DEBOUNCED GIST SYNC ─────────────────────────── */
