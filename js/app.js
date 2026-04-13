@@ -285,9 +285,9 @@ function handleClick(e) {
         break;
       }
       showSyncStatus('syncing', 'Pulling from Gist…');
-      loadFromGist(token, gistId).then(remote => {
+      loadFromGist(token, gistId).then(({ data: remote, error }) => {
         if (!remote) {
-          showSyncStatus('error', '✗ Could not load from Gist');
+          showSyncStatus('error', `✗ ${error || 'Could not load from Gist'}`);
           return;
         }
         STATE = mergeStates(STATE, remote);
@@ -386,7 +386,7 @@ async function init() {
 
   // 2. Try to load from Gist (non-blocking)
   if (STATE.settings.gistToken && STATE.settings.gistId) {
-    loadFromGist(STATE.settings.gistToken, STATE.settings.gistId).then(remote => {
+    loadFromGist(STATE.settings.gistToken, STATE.settings.gistId).then(({ data: remote }) => {
       if (remote) {
         STATE = mergeStates(STATE, remote);
         saveLocal(STATE);
