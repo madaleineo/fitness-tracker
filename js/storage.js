@@ -129,7 +129,7 @@ async function syncToGist(state) {
 }
 
 async function loadFromGist(gistToken, gistId) {
-  if (!gistToken || !gistId) return null;
+  if (!gistToken || !gistId) return { data: null, error: 'Missing token or Gist ID' };
   try {
     const res = await fetch(`https://api.github.com/gists/${gistId}`, {
       headers: {
@@ -137,14 +137,17 @@ async function loadFromGist(gistToken, gistId) {
         'Accept': 'application/vnd.github.v3+json',
       },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      return { data: null, error: `${res.status}: ${err.message || res.statusText}` };
+    }
     const data = await res.json();
     const file = data.files[GIST_FILENAME];
-    if (!file) return null;
-    return JSON.parse(file.content);
+    if (!file) return { data: null, error: `File "${GIST_FILENAME}" not found in Gist` };
+    return { data: JSON.parse(file.content), error: null };
   } catch (e) {
     console.warn('Failed to load from Gist:', e);
-    return null;
+    return { data: null, error: e.message };
   }
 }
 
